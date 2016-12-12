@@ -40,7 +40,7 @@ function handle(msg,cid){
 	
 	var commands = rerequire('../commands.js');
 	
-	var command = msg.split('\n')[0].split(' ')[0];
+	var command = msg.split('\n')[0].split(' ')[0].toLowerCase();
 	
 	function valid(msg,cid){
 		return command in commands;
