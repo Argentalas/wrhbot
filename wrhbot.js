@@ -48,15 +48,20 @@ function handle(msg,cid){
 
 	function authorized(msg,cid){
 		return true;
+		var permissions = JSON.parse(fs.readFileSync('./private/permissions.json'))
+		return permissions[command][cid] || permissions[cid].admin;
 	};
 
 	function reply(msg,cid){
 		if(!valid(msg,cid)){
 			return '\ntype "commands" for command list';
 		}else if(!authorized(msg,cid)){
-			return 'You require security clearence level 3';
+			return 'You require security clearence level ' + Math.floor((Math.random()*8)+1);
 		}else{
-			return commands[command](msg) || 'X_X';	
+			if (!(fs.readdirSync('./data/context/').indexOf(cid + '.json')+1)){
+				fs.writeFileSync('./data/context/'+cid+'.json', JSON.stringify({}));
+			}
+			return commands[command](msg, cid) || 'x_x';
 		}
 	};
 

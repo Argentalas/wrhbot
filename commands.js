@@ -2,6 +2,10 @@
 var fs = require('fs');
 var bcrypt = require('bcrypt');
 
+var paths = {};
+paths.record = './data/record.json';
+paths.context = './data/context/';
+
 var commands = {};
 commands.echo = echo;
 commands.tstp = tstp;
@@ -9,28 +13,63 @@ commands.random = random;
 commands.commands = listCommands;
 commands.source = source;
 commands.wrh = transaction;
+commands.search = search;
+commands["a b"] = random;
 
 module.exports = commands;
 
 //////////////////////////
 
+function search(msg, cid, field){
+	field = field || 'item';
+	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
+	var sep = msg.indexOf(' ');
+	var query = msg.toLowerCase().slice(sep).trim();
+	if (sep<0){
+		if (context.item){query = context.item}else {return 'search what?'};
+	};
+	var trans = JSON.parse(fs.readFileSync(paths.record));
+	var result = {};
+	for (t in trans){
+		let item = trans[t][field] || '';
+		if (item.indexOf(query)+1){
+			if (!(item in result)){
+				result[item] = 0;
+				context.item = item;
+			};
+			result[item] += +trans[t].amount || 1;
+		}
+	};
+	var reply = '';
+	for (i in result){
+		reply += result[i] + ' x ' + i + '\n\n';
+	}
+	fs.writeFileSync(paths.context + cid + '.json', JSON.stringify(context));
+	return reply;
+}
+
 function transaction(msg){
 	var trans = {};
-	msg = msg.split('\n');
+	msg = msg.toLowerCase().split('\n');
+
 	for (var i=1; i<msg.length; i++){
 		let sep = msg[i].indexOf(':');
-		trans[msg[i].slice(0, sep)] = msg[i].slice(sep);
+		if (sep<0){sep = undefined} //if no ':' found - this helps create "text1": "text1" record
+		trans[msg[i].slice(0, sep)] = msg[i].slice(sep+1).trim();
 	};
-	record(trans);
-	return 'got it';
+
+	if (Object.keys(trans).length === 0){
+		return 'wrh\nitem: <item name>\nid: <item id>\namount: <number>\nplace: <place name> <place id>'
+	}else{
+		record(trans);
+		return 'got it';}
 }
 
 function record(obj){
 	console.log('trying to record');
-	var path = './data/record.json';
-	var file = JSON.parse(fs.readFileSync(path));
+	var file = JSON.parse(fs.readFileSync(paths.record));
 	file[Date.now()] = obj;
-	fs.writeFileSync(path, JSON.stringify(file));
+	fs.writeFileSync(paths.record, JSON.stringify(file, null, "\t"));
 	console.log('record successful');
 };
 
