@@ -14,25 +14,41 @@ commands.commands = listCommands;
 commands.source = source;
 commands.wrh = transaction;
 commands.search = search;
-commands["a b"] = random;
+//commands["a b"] = random;
 
 module.exports = commands;
 
 //////////////////////////
 
 function search(msg, cid, field){
-	field = field || 'item';
+	//this function should actually be called smth like "search and how many"; naming is hard
+	
+	//get context	
 	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
-	var sep = msg.indexOf(' ');
-	var query = msg.toLowerCase().slice(sep).trim();
-	if (sep<0){
-		if (context.item){query = context.item}else {return 'search what?'};
-	};
+	context.command = 'search';
+
+	//prepare the query
+	var temp = msg.split(/\s/);
+	temp[1] = temp[1] || context.item;
+	if (!temp[1]){return 'search what?'};
+	var str = '';
+	for (var i = 1; i<temp.length; i++){
+		str += `(?=.*${temp[i]})`
+	}
+	var regex = new RegExp(str+'.*','gi');
+
+	//var sep = msg.indexOf(' ');
+	//var query = msg.toLowerCase().slice(sep).trim();
+	//if (sep<0){
+	//	if (context.item){query = context.item}else {return 'search what?'};
+	//};
+	
+	//perform search and summ
 	var trans = JSON.parse(fs.readFileSync(paths.record));
 	var result = {};
 	for (t in trans){
-		let item = trans[t][field] || '';
-		if (item.indexOf(query)+1){
+		let item = trans[t].item || '';
+		if (regex.test(item)){
 			if (!(item in result)){
 				result[item] = 0;
 				context.item = item;
@@ -40,11 +56,15 @@ function search(msg, cid, field){
 			result[item] += +trans[t].amount || 1;
 		}
 	};
+	
+	//save context
+	fs.writeFile(paths.context + cid + '.json', JSON.stringify(context));
+
+	//format and return reply
 	var reply = '';
 	for (i in result){
 		reply += result[i] + ' x ' + i + '\n\n';
 	}
-	fs.writeFileSync(paths.context + cid + '.json', JSON.stringify(context));
 	return reply;
 }
 
