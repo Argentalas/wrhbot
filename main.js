@@ -26,7 +26,7 @@ module.exports = function (req, res){
 			return;
 		};
 		handle(updt.message.text, updt.message.chat.id, res);
-	});
+	})
 };
 
 function handle(msg, id, res){
@@ -54,12 +54,13 @@ function handle(msg, id, res){
 	data.method = "sendMessage";
 	data.text = reply;
 
-	res.writeHead(200, {'Content-Type':'application/json'});
+	res.writeHead(200, {'Content-Type':'application/json'})
 	res.write(JSON.stringify(data));
 	res.end();
+};
 
-//////////////////
-	
+/////////////////////////////////
+
 function defReply(){return 'hi'};
 
 function authorized(){return true};

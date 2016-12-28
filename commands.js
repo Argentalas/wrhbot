@@ -1,6 +1,6 @@
 //commands.js
 var fs = require('fs');
-//var bcrypt = require('bcrypt');
+var crypto = require('crypto');
 
 var paths = {};
 paths.record = './data/record.json';
@@ -9,7 +9,7 @@ paths.context = './data/context/';
 var commands = {};
 commands.echo = echo;
 commands.tstp = tstp;
-//commands.random = random;
+commands.random = random;
 commands.commands = listCommands;
 commands.source = source;
 commands.wrh = transaction;
@@ -35,14 +35,8 @@ function search(msg, cid, field){
 	for (var i = 1; i<temp.length; i++){
 		str += `(?=.*${temp[i]})`
 	}
-	var regex = new RegExp(str+'.*','gi');
+	var regex = new RegExp(str+'.*','i');
 
-	//var sep = msg.indexOf(' ');
-	//var query = msg.toLowerCase().slice(sep).trim();
-	//if (sep<0){
-	//	if (context.item){query = context.item}else {return 'search what?'};
-	//};
-	
 	//perform search and summ
 	var trans = JSON.parse(fs.readFileSync(paths.record));
 	var result = {};
@@ -109,13 +103,11 @@ function tstp(msg){
 	return t;
 }
 
-/*
 function random(msg){
 	var n = msg.slice(msg.indexOf(' '));
 	n = +n || 12;
-	return bcrypt.genSaltSync(1).substr(7,n);
+	return crypto.randomBytes(51).toString('base64').match(/[a-zA-Z0-9]+/gi).join('').substr(0,n);
 }
-*/
 
 function listCommands(){
 	var r = [];
