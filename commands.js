@@ -1,6 +1,6 @@
 //commands.js
 var fs = require('fs');
-var bcrypt = require('bcrypt');
+//var bcrypt = require('bcrypt');
 
 var paths = {};
 paths.record = './data/record.json';
@@ -9,7 +9,7 @@ paths.context = './data/context/';
 var commands = {};
 commands.echo = echo;
 commands.tstp = tstp;
-commands.random = random;
+//commands.random = random;
 commands.commands = listCommands;
 commands.source = source;
 commands.wrh = transaction;
@@ -47,7 +47,7 @@ function search(msg, cid, field){
 	var trans = JSON.parse(fs.readFileSync(paths.record));
 	var result = {};
 	for (t in trans){
-		let item = trans[t].item || '';
+		var item = trans[t].item || '';
 		if (regex.test(item)){
 			if (!(item in result)){
 				result[item] = 0;
@@ -73,7 +73,7 @@ function transaction(msg){
 	msg = msg.toLowerCase().split('\n');
 
 	for (var i=1; i<msg.length; i++){
-		let sep = msg[i].indexOf(':');
+		var sep = msg[i].indexOf(':');
 		if (sep<0){sep = undefined} //if no ':' found - this helps create "text1": "text1" record
 		trans[msg[i].slice(0, sep)] = msg[i].slice(sep+1).trim();
 	};
@@ -109,11 +109,13 @@ function tstp(msg){
 	return t;
 }
 
+/*
 function random(msg){
 	var n = msg.slice(msg.indexOf(' '));
 	n = +n || 12;
 	return bcrypt.genSaltSync(1).substr(7,n);
 }
+*/
 
 function listCommands(){
 	var r = [];
