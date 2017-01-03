@@ -5,9 +5,9 @@ var log = require('./log.js');
 var url = fs.readFileSync('./private/url').toString().trim();
 
 module.exports = function (req, res){
-	log(req.url, req.connection.remoteAddress);
+	log(Date()+req.connection.remoteAddress);
 	if (req.url.trim() !== '/'+url){
-		log('wrong url');
+		log(`wrong url: ${req.url}`);
 		res.writeHead(200);
 		res.end();
 		return;

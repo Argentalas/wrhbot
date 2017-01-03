@@ -14,11 +14,65 @@ commands.commands = listCommands;
 commands.source = source;
 commands.wrh = transaction;
 commands.search = search;
+commands.where = where;
 //commands["a b"] = random;
 
 module.exports = commands;
 
 //////////////////////////
+
+function where(msg, cid){
+	//get context	
+	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
+	context.command = 'where';
+
+	//prepare the query
+	var query = msg.split(/\s/);
+	query[1] = query[1] || context.item;
+	if (!query[1]){return 'where what?'};
+	var str = '';
+	for (var i = 1; i<query.length; i++){
+		str += `(?=.*${query[i]})`
+	}
+	var regex = new RegExp(str+'.*','i');
+
+	//perform search
+	var trans = JSON.parse(fs.readFileSync(paths.record));
+	var result = {};
+	for (t in trans){
+		var id = trans[t].id || '';
+		var item = trans[t].item || '';
+		var place = trans[t].place || 'unknown';
+		item = (item + ' ' + id).trim();
+		if (regex.test(item)){
+			if (!(place in result)){
+				result[place] = 0;
+				context.item = item;
+				regex = new RegExp(item, 'i');
+			};
+			result[place] += +trans[t].amount || 1;
+		};
+	};
+
+	//save context
+	fs.writeFile(paths.context + cid + '.json', JSON.stringify(context));
+
+	//format and return reply
+	var reply = context.item + '\n';
+	for (p in result){
+		if (result[p] === 0){continue};
+		if(result[p] === 1){
+			reply += `${p} (1 item)\n\n`
+
+		}else{
+			reply += `${p} (${result[p]} items)\n\n`
+		};
+	}
+	if (reply === context.item + '\n'){
+		reply = "we don't have " + reply;
+	};
+	return reply;
+}
 
 function search(msg, cid, field){
 	//this function should actually be called smth like "search and how many"; naming is hard
@@ -28,12 +82,12 @@ function search(msg, cid, field){
 	context.command = 'search';
 
 	//prepare the query
-	var temp = msg.split(/\s/);
-	temp[1] = temp[1] || context.item;
-	if (!temp[1]){return 'search what?'};
+	var query = msg.split(/\s/);
+	query[1] = query[1] || context.item;
+	if (!query[1]){return 'search what?'};
 	var str = '';
-	for (var i = 1; i<temp.length; i++){
-		str += `(?=.*${temp[i]})`
+	for (var i = 1; i<query.length; i++){
+		str += `(?=.*${query[i]})`
 	}
 	var regex = new RegExp(str+'.*','i');
 
