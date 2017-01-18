@@ -116,7 +116,7 @@ function search(msg, cid, field){
 	return reply;
 }
 
-function transaction(msg){
+function transaction(msg, cid){
 	var trans = {};
 	msg = msg.toLowerCase().split('\n');
 
@@ -129,12 +129,13 @@ function transaction(msg){
 	if (Object.keys(trans).length === 0){
 		return 'wrh\nitem: <item name>\nid: <item id>\namount: <number>\nplace: <place name> <place id>'
 	}else{
-		record(trans);
+		record(trans, cid);
 		return 'got it';}
 }
 
-function record(obj){
+function record(obj, cid){
 	console.log('trying to record');
+	obj.cid = cid;
 	var file = JSON.parse(fs.readFileSync(paths.record));
 	file[Date.now()] = obj;
 	fs.writeFileSync(paths.record, JSON.stringify(file, null, "\t"));
