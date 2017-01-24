@@ -44,8 +44,16 @@ function handle(msg, id, res){
 	}else if (!authorized(command, id)){
 		reply = 'You require security clearence level ' + Math.floor((Math.random()*8)+1);
 	}else {
+		//todo refac w/ path
+		var contextFilePath = './data/context/' + id + '.json';
 		if (!(fs.readdirSync('./data/context/').indexOf(id + '.json')+1)){
-			fs.writeFileSync('./data/context/'+id+'.json', '{}');
+			fs.writeFileSync(contextFilePath, JSON.stringify({command: command}));
+		}else {
+			fs.writeFileSync(
+				contextFilePath, JSON.stringify(
+					JSON.parse(fs.readFileSync(contextFilePath)).command = command
+				)
+			);
 		};
 		reply = commands[command](msg, id) || 'x_x';		
 	};
