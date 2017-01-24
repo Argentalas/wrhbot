@@ -1,14 +1,15 @@
 //main.js
+const path = require('path');
 const fs = require('fs');
 var rerequire = require('./rerequire.js');
 var log = require('./log.js');
 var url = fs.readFileSync('./private/url').toString().trim();
 
 module.exports = function (req, res){
-	log(Date()+req.connection.remoteAddress);
+	log(Date()+' '+req.connection.remoteAddress);
 	if (req.url.trim() !== '/'+url){
 		log(`wrong url: ${req.url}`);
-		res.writeHead(200);
+		res.writeHead(404);
 		res.end();
 		return;
 	};
@@ -44,6 +45,10 @@ function handle(msg, cid, res){
 	}else if (!authorized(command, cid)){
 		reply = 'You require security clearence level ' + Math.floor((Math.random()*8)+1);
 	}else {
+		var contextFilePath = path.format({
+			dir: './data/context',
+			base: cid+'.json'
+		});
 		//todo refac w/ path
 		var contextFilePath = './data/context/' + cid + '.json';
 		if (!(fs.readdirSync('./data/context/').indexOf(cid + '.json')+1)){
