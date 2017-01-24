@@ -24,7 +24,6 @@ module.exports = commands;
 function where(msg, cid){
 	//get context	
 	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
-	context.command = 'where';
 
 	//prepare the query
 	var query = msg.split(/\s/);
@@ -79,7 +78,6 @@ function search(msg, cid, field){
 	
 	//get context	
 	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
-	context.command = 'search';
 
 	//prepare the query
 	var query = msg.split(/\s/);
@@ -169,6 +167,6 @@ function listCommands(){
 	for (c in commands){
 		r.push(c);
 	};
-	console.log(commands,'\n',r);
+//	console.log(commands,'\n',r);
 	return r.sort().join('\n');
 }

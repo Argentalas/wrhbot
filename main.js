@@ -29,7 +29,7 @@ module.exports = function (req, res){
 	})
 };
 
-function handle(msg, id, res){
+function handle(msg, cid, res){
 	var commands = rerequire('./commands.js');
 
 	for (c in commands){
@@ -41,24 +41,22 @@ function handle(msg, id, res){
 
 	if(!command){
 		reply = 'type "commands" for command list';
-	}else if (!authorized(command, id)){
+	}else if (!authorized(command, cid)){
 		reply = 'You require security clearence level ' + Math.floor((Math.random()*8)+1);
 	}else {
 		//todo refac w/ path
-		var contextFilePath = './data/context/' + id + '.json';
-		if (!(fs.readdirSync('./data/context/').indexOf(id + '.json')+1)){
+		var contextFilePath = './data/context/' + cid + '.json';
+		if (!(fs.readdirSync('./data/context/').indexOf(cid + '.json')+1)){
 			fs.writeFileSync(contextFilePath, JSON.stringify({command: command}));
 		}else {
-			fs.writeFileSync(
-				contextFilePath, JSON.stringify(
-					JSON.parse(fs.readFileSync(contextFilePath)).command = command
-				)
-			);
+			var context = JSON.parse(fs.readFileSync(contextFilePath));
+			context.command = command;
+			fs.writeFileSync(contextFilePath, JSON.stringify(context));
 		};
-		reply = commands[command](msg, id) || 'x_x';		
+		reply = commands[command](msg, cid) || 'x_x';		
 	};
 	
-	var data = {chat_id: id};
+	var data = {chat_id: cid};
 	data.method = "sendMessage";
 	data.text = reply;
 
