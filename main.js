@@ -45,20 +45,20 @@ function handle(msg, cid, res){
 	}else if (!authorized(command, cid)){
 		reply = 'You require security clearence level ' + Math.floor((Math.random()*8)+1);
 	}else {
-		var contextFilePath = path.format({
+		var contextPath = path.format({
 			dir: './data/context',
 			base: cid+'.json'
 		});
-		//todo refac w/ path
-		var contextFilePath = './data/context/' + cid + '.json';
-		if (!(fs.readdirSync('./data/context/').indexOf(cid + '.json')+1)){
-			fs.writeFileSync(contextFilePath, JSON.stringify({command: command}));
-		}else {
-			var context = JSON.parse(fs.readFileSync(contextFilePath));
-			context.command = command;
-			fs.writeFileSync(contextFilePath, JSON.stringify(context));
-		};
-		reply = commands[command](msg, cid) || 'x_x';		
+
+		if (!(fs.readdirSync(contextPath.dirname).indexOf(contextPath.basename)+1)){
+			fs.writeFileSync(contextPath, '');
+		}
+
+		reply = commands[command](msg, cid) || 'x_x';
+		
+		var context = JSON.parse(fs.readFileSync(contextPath));
+		context.command = command;
+		fs.writeFileSync(contextPath, JSON.stringify(context));
 	};
 	
 	var data = {chat_id: cid};
