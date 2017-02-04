@@ -8,7 +8,6 @@ var cfg;
 var server;
 
 fs.watch(cfgPath, init);
-fs.watch('./main.js', init);
 
 init();
 

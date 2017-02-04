@@ -1,6 +1,7 @@
 //commands.js
 var fs = require('fs');
 var crypto = require('crypto');
+var log = require('./log.js');
 
 var paths = {};
 paths.record = './data/record.json';
@@ -24,10 +25,12 @@ module.exports = commands;
 function where(msg, cid){
 	//get context	
 	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
+	log(1, context.item);
 
 	//prepare the query
 	var query = msg.split(/\s/);
 	query[1] = query[1] || context.item;
+	log(2, query);
 	if (!query[1]){return 'where what?'};
 	var str = '';
 	for (var i = 1; i<query.length; i++){
@@ -42,7 +45,9 @@ function where(msg, cid){
 		var id = trans[t].id || '';
 		var item = trans[t].item || '';
 		var place = trans[t].place || 'unknown';
+		log(3, item);
 		item = (item + ' ' + id).trim();
+		log(4, item);
 		if (regex.test(item)){
 			if (!(place in result)){
 				result[place] = 0;
@@ -51,10 +56,11 @@ function where(msg, cid){
 			};
 			result[place] += +trans[t].amount || 1;
 		};
+		log(5, context.item);
 	};
 
 	//save context
-	fs.writeFile(paths.context + cid + '.json', JSON.stringify(context));
+	fs.writeFileSync(paths.context + cid + '.json', JSON.stringify(context));
 
 	//format and return reply
 	var reply = context.item + '\n';
@@ -104,7 +110,7 @@ function search(msg, cid, field){
 	};
 	
 	//save context
-	fs.writeFile(paths.context + cid + '.json', JSON.stringify(context));
+	fs.writeFileSync(paths.context + cid + '.json', JSON.stringify(context));
 
 	//format and return reply
 	var reply = '';

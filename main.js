@@ -21,12 +21,23 @@ module.exports = function (req, res){
 		res.end();
 	}).on('end', ()=>{
 		updt = JSON.parse(Buffer.concat(updt).toString());
-		if (!(updt.message && updt.message.text && updt.message.chat.id)){
+		var cid = updt.message.chat.id;
+		
+		if (!(updt.message && updt.message.text && cid)){
 			res.writeHead(200);
 			res.end();
 			return;
 		};
-		handle(updt.message.text, updt.message.chat.id, res);
+
+		var users = JSON.parse(fs.readFileSync('./private/users.json'));
+		users[cid] = users[cid] || {};
+		users[cid].username = updt.message.chat.username;
+		users[cid].firstName = updt.message.chat.first_name;
+		users[cid].lastName = updt.message.chat.last_name;
+		
+		fs.writeFileSync('./private/users.json', JSON.stringify(users, null, '\t'));
+
+		handle(updt.message.text, cid, res);
 	})
 };
 
@@ -78,8 +89,12 @@ function handle(msg, cid, res){
 
 function defReply(){return 'hi'};
 
-function authorized(command, cid){return true
+function authorized(command, cid){
 	var users = JSON.parse(fs.readFileSync('./private/users.json'));
-	if (users[cid][role] === 'admin'){return true};
-	return users[cid][command];
+	if (users[cid].role === 'admin'){return true};
+	var permit = users[cid][command];
+	if (permit === false){return false};
+	var commonCommands = JSON.parse(fs.readFileSync('./private/commonCommands.json'));
+	if (command in commonCommands){return true};
+	return permit;
 };
