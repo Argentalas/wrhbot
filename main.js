@@ -50,8 +50,12 @@ function handle(msg, cid, res){
 			base: cid+'.json'
 		});
 
-		if (!(fs.readdirSync(contextPath.dirname).indexOf(contextPath.basename)+1)){
-			fs.writeFileSync(contextPath, '');
+		log(contextPath);
+
+		if (!(fs.readdirSync(path.dirname(contextPath)).indexOf(path.basename(contextPath))+1)){
+			log(`writing ${contextPath}`);
+			fs.writeFileSync(contextPath, JSON.stringify({t:Date.now()}));
+			log(`written ${fs.readFileSync(contextPath)}`)
 		}
 
 		reply = commands[command](msg, cid) || 'x_x';
@@ -74,4 +78,8 @@ function handle(msg, cid, res){
 
 function defReply(){return 'hi'};
 
-function authorized(){return true};
+function authorized(command, cid){return true
+	var users = JSON.parse(fs.readFileSync('./private/users.json'));
+	if (users[cid][role] === 'admin'){return true};
+	return users[cid][command];
+};
