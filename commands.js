@@ -23,21 +23,26 @@ module.exports = commands;
 //////////////////////////
 
 function where(msg, cid){
+
+	return 'temporarily unavailable';
 	//get context	
 	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
-	log(1, context.item);
+	//log(1, context.item);
 
 	//prepare the query
 	var query = msg.split(/\s/);
 	query[1] = query[1] || context.item;
-	log(2, query);
+	//log(2, query);
 	if (!query[1]){return 'where what?'};
 	var str = '';
 	for (var i = 1; i<query.length; i++){
 		str += `(?=.*${query[i]})`
 	}
-	var regex = new RegExp(str+'.*','i');
-
+	try{
+		var regex = new RegExp(str+'.*','i');
+	}catch(e){
+		regex = new RegExp('','i');
+	}
 	//perform search
 	var trans = JSON.parse(fs.readFileSync(paths.record));
 	var result = {};
@@ -45,18 +50,18 @@ function where(msg, cid){
 		var id = trans[t].id || '';
 		var item = trans[t].item || '';
 		var place = trans[t].place || 'unknown';
-		log(3, item);
+		//log(3, item);
 		item = (item + ' ' + id).trim();
-		log(4, item);
+		//log(4, item);
 		if (regex.test(item)){
 			if (!(place in result)){
 				result[place] = 0;
 				context.item = item;
-				regex = new RegExp(item, 'i');
+				regex = new RegExp(trans[t].item, 'i');
 			};
 			result[place] += +trans[t].amount || 1;
 		};
-		log(5, context.item);
+		//log(5, context.item);
 	};
 
 	//save context
@@ -66,7 +71,7 @@ function where(msg, cid){
 	var reply = context.item + '\n';
 	for (p in result){
 		if (result[p] === 0){continue};
-		if(result[p] === 1){
+		if (result[p] === 1){
 			reply += `${p} (1 item)\n\n`
 
 		}else{
@@ -93,7 +98,11 @@ function search(msg, cid, field){
 	for (var i = 1; i<query.length; i++){
 		str += `(?=.*${query[i]})`
 	}
-	var regex = new RegExp(str+'.*','i');
+	try{
+		var regex = new RegExp(str+'.*','i');
+	}catch(e){
+		regex = new RegExp('','i');
+	}
 
 	//perform search and summ
 	var trans = JSON.parse(fs.readFileSync(paths.record));

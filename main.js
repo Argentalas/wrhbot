@@ -21,13 +21,14 @@ module.exports = function (req, res){
 		res.end();
 	}).on('end', ()=>{
 		updt = JSON.parse(Buffer.concat(updt).toString());
-		var cid = updt.message.chat.id;
 		
-		if (!(updt.message && updt.message.text && cid)){
+		if (!(updt.message && updt.message.text && updt.message.chat.id)){
 			res.writeHead(200);
 			res.end();
 			return;
 		};
+
+		var cid = updt.message.chat.id;
 
 		var users = JSON.parse(fs.readFileSync('./private/users.json'));
 		users[cid] = users[cid] || {};
