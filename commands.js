@@ -102,6 +102,7 @@ function search(msg, cid, field){
 	for (var i = 1; i<query.length; i++){
 		str += `(?=.*${query[i]})`
 	}
+	str = RegExp.escape(str);
 	try{
 		var regex = new RegExp(str+'.*','i');
 	}catch(e){
