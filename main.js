@@ -62,12 +62,9 @@ function handle(msg, cid, res){
 			base: cid+'.json'
 		});
 
-		log(contextPath);
-
+		//create context file if there is none yet
 		if (!(fs.readdirSync(path.dirname(contextPath)).indexOf(path.basename(contextPath))+1)){
-			log(`writing ${contextPath}`);
 			fs.writeFileSync(contextPath, JSON.stringify({t:Date.now()}));
-			log(`written ${fs.readFileSync(contextPath)}`)
 		}
 
 		reply = commands[command](msg, cid) || 'x_x';

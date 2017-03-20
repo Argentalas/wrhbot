@@ -3,6 +3,10 @@ var fs = require('fs');
 var crypto = require('crypto');
 var log = require('./log.js');
 
+RegExp.escape = function(text) {
+	  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
+
 var paths = {};
 paths.record = './data/record.json';
 paths.context = './data/context/';
@@ -24,7 +28,6 @@ module.exports = commands;
 
 function where(msg, cid){
 
-	return 'temporarily unavailable';
 	//get context	
 	var context = JSON.parse(fs.readFileSync(paths.context + cid + '.json'));
 	//log(1, context.item);
@@ -38,6 +41,7 @@ function where(msg, cid){
 	for (var i = 1; i<query.length; i++){
 		str += `(?=.*${query[i]})`
 	}
+	str = RegExp.escape(str);
 	try{
 		var regex = new RegExp(str+'.*','i');
 	}catch(e){
